@@ -5,7 +5,7 @@
  *
  * @author Alexandre
  */
-class dao_arquivo {
+class daoUsuario {
 
     private $conn;
 
@@ -17,73 +17,49 @@ class dao_arquivo {
         $this->conn = $db->conectar();
     }
 
-    public function inserir_backup($param) {
-        // coleta dos parâmetros e salva cada um deles em variaveis separadas
-        $titulo = $param->titulo;
-        $disciplina = $param->disciplina;
-        $descricao = $param->descricao;
-        $usuario = $param->usuario;
-        $link = $param->link;
-        // comando SQL
-        $sql = "insert into arquivo(titulo, disciplina, descricao, link, usuario) values ("
-                . "'$titulo','$disciplina','$link','$descricao','$usuario')";
-        // execução do comando SQL e guarda seu STATUS de execução
-        $status_sql = mysqli_query($this->conn, $sql);
-        // caso a execução tenha ocorrido com sucesso, o STATUS será 1
-        if ($status_sql > 0) {
-            $resposta["erro"] = false;
-            $resposta["mensagem"] = ARQUIVO_INSERIDO_SUCESSO;
-        } else {
-            // caso ocorra algum erro na execução, será informado o através do error MySQL
-            $error = mysqli_error($this->conn);
-            $resposta["erro"] = true;
-            $resposta["mensagem"] = $error;
-        }
-        // retorna a resposta da execução do comando SQL
-        return $resposta;
-    }
-
     public function inserir($param) {
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
-        $titulo = $param[0];
-        $disciplina = $param[1];
-        $descricao = $param[2];
-        $usuario = $param[3];
-        $link = $param[4];
+        $nome = $param->nome;
+        $sobrenome = $param->sobrenome;
+        $email = $param->email;
+        $senha = sha1($param->senha);
+        $gcm_code = $param->gcm_code;
         // comando SQL
-        $sql = "insert into arquivo(titulo, disciplina, descricao, link, usuario) values ("
-                . "'$titulo','$disciplina','$link','$descricao','$usuario')";
+        $sql = "insert into usuario(nome, sobrenome, email, senha, gcm_code) values ("
+                . "'$nome','$sobrenome','$email','$senha','$gcm_code')";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução tenha ocorrido com sucesso, o STATUS será 1
         if ($status_sql > 0) {
             $resposta["erro"] = false;
-            $resposta["mensagem"] = ARQUIVO_INSERIDO_SUCESSO;
+            $resposta["mensagem"] = USUARIO_INSERIDO_SUCESSO;
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
             $error = mysqli_error($this->conn);
             $resposta["erro"] = true;
             $resposta["mensagem"] = $error;
         }
+        // fechamando da conexão
+        mysqli_close($this->conn);
         // retorna a resposta da execução do comando SQL
         return $resposta;
     }
 
-    public function deletar_id($param) {
+    public function deletarPorId($param) {
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
         $id = $param->id;
         // comando SQL
-        $sql = "delete from arquivo where id='$id'";
+        $sql = "delete from usuario where id='$id'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução tenha ocorrido com sucesso, o STATUS será 1
         if ($status_sql > 0) {
             if (mysqli_affected_rows($this->conn) > 0) {
                 $resposta["erro"] = false;
-                $resposta["mensagem"] = ARQUIVO_DELETADO_SUCESSO;
+                $resposta["mensagem"] = USUARIO_DELETADO_SUCESSO;
             } else {
                 $resposta["erro"] = true;
-                $resposta["mensagem"] = ARQUIVO_DELETADO_FRACASSO;
+                $resposta["mensagem"] = USUARIO_DELETADO_FRACASSO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -97,24 +73,21 @@ class dao_arquivo {
         return $resposta;
     }
 
-    public function atualizar_id($param) {
+    public function deletarPorEmail($param) {
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
-        $id = $param->id;
-        $titulo = $param->titulo;
-        $disciplina = $param->disciplina;
-        $descricao = $param->descricao;
+        $email = $param->email;
         // comando SQL
-        $sql = "update arquivo set titulo='$titulo', disciplina='$disciplina', descricao='$descricao' where id='$id'";
+        $sql = "delete from usuario where email='$email'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução tenha ocorrido com sucesso, o STATUS será 1
         if ($status_sql > 0) {
             if (mysqli_affected_rows($this->conn) > 0) {
                 $resposta["erro"] = false;
-                $resposta["mensagem"] = ARQUIVO_ATUALIZADO_SUCESSO;
+                $resposta["mensagem"] = USUARIO_DELETADO_SUCESSO;
             } else {
                 $resposta["erro"] = true;
-                $resposta["mensagem"] = ARQUIVO_ATUALIZADO_FRACASSO;
+                $resposta["mensagem"] = USUARIO_DELETADO_FRACASSO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -128,13 +101,81 @@ class dao_arquivo {
         return $resposta;
     }
 
-    public function get_id($param) {
+    public function atualizarPorId($param) {
+        // coleta dos parâmetros e salva cada um deles em variaveis separadas
+        $id = $param->id;
+        $nome = $param->nome;
+        $sobrenome = $param->sobrenome;
+        $email = $param->email;
+        $senha = sha1($param->senha);
+        $gcm_code = $param->gcm_code;
+        // comando SQL
+        $sql = "update usuario set nome='$nome', sobrenome='$sobrenome', email='$email', senha='$senha',"
+                . "gcm_code='$gcm_code' where id='$id'";
+        // execução do comando SQL e guarda seu STATUS de execução
+        $status_sql = mysqli_query($this->conn, $sql);
+        // caso a execução tenha ocorrido com sucesso, o STATUS será 1
+        if ($status_sql > 0) {
+            if (mysqli_affected_rows($this->conn) > 0) {
+                $resposta["erro"] = false;
+                $resposta["mensagem"] = USUARIO_ATUALIZADO_SUCESSO;
+            } else {
+                $resposta["erro"] = true;
+                $resposta["mensagem"] = USUARIO_ATUALIZADO_FRACASSO;
+            }
+        } else {
+            // caso ocorra algum erro na execução, será informado o através do error MySQL
+            $error = mysqli_error($this->conn);
+            $resposta["erro"] = true;
+            $resposta["mensagem"] = $error;
+        }
+        // fechamando da conexão
+        mysqli_close($this->conn);
+        // retorna a resposta da execução do comando SQL
+        return $resposta;
+    }
+
+    public function atualizarPorEmail($param) {
+        // coleta dos parâmetros e salva cada um deles em variaveis separadas
+        $id = $param->id;
+        $nome = $param->nome;
+        $sobrenome = $param->sobrenome;
+        $email = $param->email;
+        $senha = sha1($param->senha);
+        $gcm_code = $param->gcm_code;
+        // comando SQL
+        $sql = "update usuario set nome='$nome', sobrenome='$sobrenome', email='$email', senha='$senha',"
+                . "gcm_code='$gcm_code' where email='$email'";
+        // execução do comando SQL e guarda seu STATUS de execução
+        $status_sql = mysqli_query($this->conn, $sql);
+        // caso a execução tenha ocorrido com sucesso, o STATUS será 1
+        if ($status_sql > 0) {
+            if (mysqli_affected_rows($this->conn) > 0) {
+                $resposta["erro"] = false;
+                $resposta["mensagem"] = USUARIO_ATUALIZADO_SUCESSO;
+            } else {
+                $resposta["erro"] = true;
+                $resposta["mensagem"] = USUARIO_ATUALIZADO_FRACASSO;
+            }
+        } else {
+            // caso ocorra algum erro na execução, será informado o através do error MySQL
+            $error = mysqli_error($this->conn);
+            $resposta["erro"] = true;
+            $resposta["mensagem"] = $error;
+        }
+        // fechamando da conexão
+        mysqli_close($this->conn);
+        // retorna a resposta da execução do comando SQL
+        return $resposta;
+    }
+
+    public function getPorId($param) {
         // retorno
         $response = array();
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
         $id = $param['id'];
         // comando SQL
-        $sql = "select * from arquivo where id='$id'";
+        $sql = "select * from usuario where id='$id'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução não tenha ocorrido algum erro
@@ -143,7 +184,7 @@ class dao_arquivo {
                 $response = mysqli_fetch_assoc($status_sql);
             } else {
                 $response["erro"] = false;
-                $response["mensagem"] = ARQUIVO_NAO_ENCONTRADO;
+                $response["mensagem"] = USUARIO_NAO_ENCONTRADO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -157,54 +198,22 @@ class dao_arquivo {
         return $response;
     }
 
-    public function get_ultimo() {
-        // retorno
-        $response = array();
-        // comando SQL
-        $sql = "select max(id) from arquivo";
-        // execução do comando SQL e guarda seu STATUS de execução
-        $status_sql = mysqli_query($this->conn, $sql);
-        // caso a execução não tenha ocorrido algum erro
-        if (!mysqli_errno($this->conn)) {
-            if (mysqli_num_rows($status_sql) > 0) {
-                $response["erro"] = false;
-                $response["mensagem"] = mysqli_fetch_assoc($status_sql)['max(id)'];
-            } else {
-                $response["erro"] = false;
-                $response["mensagem"] = ARQUIVO_NAO_ENCONTRADO;
-            }
-        } else {
-            // caso ocorra algum erro na execução, será informado o através do error MySQL
-            $error = mysqli_error($this->conn);
-            $response["erro"] = true;
-            $response["mensagem"] = $error;
-        }
-        // fechamando da conexão
-        mysqli_close($this->conn);
-        // retorna a resposta da execução do comando SQL
-        return $response;
-    }
-
-    public function get_idUsuario($param) {
+    public function getPorEmail($param) {
         // retorno
         $response = array();
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
-        $usuario = $param['id'];
+        $email = $param['email'];
         // comando SQL
-        $sql = "select * from arquivo where usuario='$usuario'";
+        $sql = "select * from usuario where email='$email'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução não tenha ocorrido algum erro
         if (!mysqli_errno($this->conn)) {
             if (mysqli_num_rows($status_sql) > 0) {
-                $arquivos = array();
-                while ($row = mysqli_fetch_assoc($status_sql)) {
-                    $arquivos[] = $row;
-                }
-                $response = $arquivos;
+                $response = mysqli_fetch_assoc($status_sql);
             } else {
                 $response["erro"] = false;
-                $response["mensagem"] = ARQUIVO_NAO_ENCONTRADO;
+                $response["mensagem"] = USUARIO_NAO_ENCONTRADO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -218,38 +227,19 @@ class dao_arquivo {
         return $response;
     }
 
-    public function get_titulo($param) {
-        // retorno
-        $response = array();
-        // coleta dos parâmetros e salva cada um deles em variaveis separadas
-        $titulo = $param['titulo'];
+    public function getEmailCheck($email) {
         // comando SQL
-        $sql = "select * from arquivo where titulo like '%$titulo%'";
+        $sql = "select id from usuario where email='$email'";
         // execução do comando SQL e guarda seu STATUS de execução
-        mysqli_set_charset($this->conn, 'UTF-8');
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução não tenha ocorrido algum erro
         if (!mysqli_errno($this->conn)) {
             if (mysqli_num_rows($status_sql) > 0) {
-                $arquivos = array();
-                while ($row = mysqli_fetch_assoc($status_sql)) {
-                    $arquivos[] = $row;
-                }
-                $response = $arquivos;
+                return true;
             } else {
-                $response["erro"] = false;
-                $response["mensagem"] = ARQUIVO_NAO_ENCONTRADO;
+                return false;
             }
-        } else {
-            // caso ocorra algum erro na execução, será informado o através do error MySQL
-            $error = mysqli_error($this->conn);
-            $response["erro"] = true;
-            $response["mensagem"] = $error;
         }
-        // fechamando da conexão
-        mysqli_close($this->conn);
-        // retorna a resposta da execução do comando SQL
-        return $response;
     }
 
 }

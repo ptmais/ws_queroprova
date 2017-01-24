@@ -1,53 +1,53 @@
 <?php
 
 require '../vendor/autoload.php';
-require_once './controlador_usuario.php';
-require_once './controlador_arquivo.php';
-require_once './controlador_evento.php';
-require_once './controlador_disciplina.php';
+require_once './controladorUsuario.php';
+require_once './controladorArquivo.php';
+require_once './controladorEvento.php';
+require_once './controladorDisciplina.php';
 
 $app = new Slim\App();
 
 // MÉTODOS USUÁRIO
 $app->group('/usuario', function () {
-    $this->post('/inserir', 'controlador_usuario:inserir');
-    $this->delete('/deletar_id', 'controlador_usuario:deletar_id');
-    $this->delete('/deletar_email', 'controlador_usuario:deletar_email');
-    $this->put('/atualizar_id', 'controlador_usuario:atualizar_id');
-    $this->put('/atualizar_email', 'controlador_usuario:atualizar_email');
-    $this->get('/get_id', 'controlador_usuario:get_id');
-    $this->get('/get_email', 'controlador_usuario:get_email');
+    $this->post('/inserir', 'controladorUsuario:inserir');
+    $this->delete('/deletarPorId', 'controladorUsuario:deletarPorId');
+    $this->delete('/deletarPorEmail', 'controladorUsuario:deletarPorEmail');
+    $this->put('/atualizarPorId', 'controladorUsuario:atualizarPorId');
+    $this->put('/atualizarPorEmail', 'controladorUsuario:atualizarPorEmail');
+    $this->get('/getPorId', 'controladorUsuario:getPorId');
+    $this->get('/getPorEmail', 'controladorUsuario:getPorEmail');
 });
 
 // MÉTODOS ARQUIVO
 $app->group('/arquivo', function () {
-    $this->post('/inserir', 'controlador_arquivo:inserir');
-    $this->delete('/deletar_id', 'controlador_arquivo:deletar_id');
-    $this->put('/atualizar_id', 'controlador_arquivo:atualizar_id');
-    $this->get('/get_id', 'controlador_arquivo:get_id');
-    $this->get('/get_idUsuario', 'controlador_arquivo:get_idUsuario');
-    $this->get('/get_titulo', 'controlador_arquivo:get_titulo');
-    $this->post('/inserir_arquivo', 'controlador_arquivo:inserir_arquivo');
+    $this->post('/inserirBd', 'controladorArquivo:inserirBd');
+    $this->post('/inserirServidor', 'controladorArquivo:inserirServidor');
+    $this->delete('/deletarPorId', 'controladorArquivo:deletarPorId');
+    $this->put('/atualizarPorId', 'controladorArquivo:atualizarPorId');
+    $this->get('/getPorId', 'controladorArquivo:getPorId');
+    $this->get('/getPorIdUsuario', 'controladorArquivo:getPorIdUsuario');
+    $this->get('/getPorTitulo', 'controladorArquivo:getPorTitulo');
 });
 
 // MÉTODOS EVENTO
 $app->group('/evento', function () {
-    $this->post('/inserir', 'controlador_evento:inserir');
-    $this->delete('/deletar_id', 'controlador_evento:deletar_id');
-    $this->put('/atualizar_id', 'controlador_evento:atualizar_id');
-    $this->get('/get_id', 'controlador_evento:get_id');
-    $this->get('/get_idUsuario', 'controlador_evento:get_idUsuario');
-    $this->get('/get_titulo', 'controlador_evento:get_titulo');
+    $this->post('/inserir', 'controladorEvento:inserir');
+    $this->delete('/deletarPorId', 'controladorEvento:deletarPorId');
+    $this->put('/atualizarPorId', 'controladorEvento:atualizarPorId');
+    $this->get('/getPorId', 'controladorEvento:getPorId');
+    $this->get('/getPorIdUsuario', 'controladorEvento:getPorIdUsuario');
+    $this->get('/getPorTitulo', 'controladorEvento:getPorTitulo');
 });
 
 // MÉTODOS DISCIPLINA
 $app->group('/disciplina', function () {
-    $this->post('/inserir', 'controlador_disciplina:inserir');
-    $this->delete('/deletar_id', 'controlador_disciplina:deletar_id');
-    $this->put('/atualizar_id', 'controlador_disciplina:atualizar_id');
-    $this->get('/get_id', 'controlador_disciplina:get_id');
-    $this->get('/get_idUsuario', 'controlador_disciplina:get_idUsuario');
-    $this->get('/get_titulo', 'controlador_disciplina:get_titulo');
+    $this->post('/inserir', 'controladorDisciplina:inserir');
+    $this->delete('/deletarPorId', 'controladorDisciplina:deletarPorId');
+    $this->put('/atualizarPorId', 'controladorDisciplina:atualizarPorId');
+    $this->get('/getPorId', 'controladorDisciplina:getPorId');
+    $this->get('/getPorIdUsuario', 'controladorDisciplina:getPorIdUsuario');
+    $this->get('/getPorTitulo', 'controladorDisciplina:getPorTitulo');
 });
 
 $app->run();

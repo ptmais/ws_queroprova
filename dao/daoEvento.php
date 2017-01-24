@@ -5,7 +5,7 @@
  *
  * @author Alexandre
  */
-class dao_disciplina {
+class daoEvento {
 
     private $conn;
 
@@ -18,18 +18,19 @@ class dao_disciplina {
     }
 
     public function inserir($param) {
-        $nome = $param->nome;
-        $cor = $param->cor;
+        $titulo = $param->titulo;
+        $descricao = $param->descricao;
         $usuario = $param->usuario;
+        $data = $param->data;
         // comando SQL
-        $sql = "insert into disciplina(nome, cor, usuario) values ("
-                . "'$nome','$cor','$usuario')";
+        $sql = "insert into evento(usuario, titulo, descricao, data) values ("
+                . "'$usuario','$titulo','$descricao','$data')";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução tenha ocorrido com sucesso, o STATUS será 1
         if ($status_sql > 0) {
             $resposta["erro"] = false;
-            $resposta["mensagem"] = DISCIPLINA_INSERIDO_SUCESSO;
+            $resposta["mensagem"] = EVENTO_INSERIDO_SUCESSO;
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
             $error = mysqli_error($this->conn);
@@ -42,21 +43,21 @@ class dao_disciplina {
         return $resposta;
     }
 
-    public function deletar_id($param) {
+    public function deletarPorId($param) {
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
         $id = $param->id;
         // comando SQL
-        $sql = "delete from disciplina where id='$id'";
+        $sql = "delete from evento where id='$id'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução tenha ocorrido com sucesso, o STATUS será 1
         if ($status_sql > 0) {
             if (mysqli_affected_rows($this->conn) > 0) {
                 $resposta["erro"] = false;
-                $resposta["mensagem"] = DISCIPLINA_DELETADO_SUCESSO;
+                $resposta["mensagem"] = EVENTO_DELETADO_SUCESSO;
             } else {
                 $resposta["erro"] = true;
-                $resposta["mensagem"] = DISCIPLINA_DELETADO_FRACASSO;
+                $resposta["mensagem"] = EVENTO_DELETADO_FRACASSO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -70,24 +71,24 @@ class dao_disciplina {
         return $resposta;
     }
 
-    public function atualizar_id($param) {
+    public function atualizarPorId($param) {
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
         $id = $param->id;
-        $nome = $param->nome;
-        $cor = $param->cor;
-        $usuario = $param->usuario;
+        $titulo = $param->titulo;
+        $descricao = $param->descricao;
+        $data = $param->data;
         // comando SQL
-        $sql = "update disciplina set nome='$nome', cor='$cor', usuario='$usuario' where id='$id'";
+        $sql = "update evento set titulo='$titulo', data='$data', descricao='$descricao' where id='$id'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução tenha ocorrido com sucesso, o STATUS será 1
         if ($status_sql > 0) {
             if (mysqli_affected_rows($this->conn) > 0) {
                 $resposta["erro"] = false;
-                $resposta["mensagem"] = DISCIPLINA_ATUALIZADO_SUCESSO;
+                $resposta["mensagem"] = EVENTO_ATUALIZADO_SUCESSO;
             } else {
                 $resposta["erro"] = true;
-                $resposta["mensagem"] = DISCIPLINA_ATUALIZADO_FRACASSO;
+                $resposta["mensagem"] = EVENTO_ATUALIZADO_FRACASSO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -101,13 +102,13 @@ class dao_disciplina {
         return $resposta;
     }
 
-    public function get_id($param) {
+    public function getPorId($param) {
         // retorno
         $response = array();
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
         $id = $param['id'];
         // comando SQL
-        $sql = "select * from disciplina where id='$id'";
+        $sql = "select * from evento where id='$id'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução não tenha ocorrido algum erro
@@ -116,7 +117,7 @@ class dao_disciplina {
                 $response = mysqli_fetch_assoc($status_sql);
             } else {
                 $response["erro"] = false;
-                $response["mensagem"] = DISCIPLINA_NAO_ENCONTRADO;
+                $response["mensagem"] = EVENTO_NAO_ENCONTRADO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL
@@ -130,13 +131,13 @@ class dao_disciplina {
         return $response;
     }
 
-    public function get_idUsuario($param) {
+    public function getPorIdUsuario($param) {
         // retorno
         $response = array();
         // coleta dos parâmetros e salva cada um deles em variaveis separadas
         $usuario = $param['id'];
         // comando SQL
-        $sql = "select * from disciplina where usuario='$usuario'";
+        $sql = "select * from evento where usuario='$usuario'";
         // execução do comando SQL e guarda seu STATUS de execução
         $status_sql = mysqli_query($this->conn, $sql);
         // caso a execução não tenha ocorrido algum erro
@@ -149,7 +150,41 @@ class dao_disciplina {
                 $response = $arquivos;
             } else {
                 $response["erro"] = false;
-                $response["mensagem"] = DISCIPLINA_NAO_ENCONTRADO;
+                $response["mensagem"] = ARQUIVO_NAO_ENCONTRADO;
+            }
+        } else {
+            // caso ocorra algum erro na execução, será informado o através do error MySQL
+            $error = mysqli_error($this->conn);
+            $response["erro"] = true;
+            $response["mensagem"] = $error;
+        }
+        // fechamando da conexão
+        mysqli_close($this->conn);
+        // retorna a resposta da execução do comando SQL
+        return $response;
+    }
+
+    public function getPorTitulo($param) {
+        // retorno
+        $response = array();
+        // coleta dos parâmetros e salva cada um deles em variaveis separadas
+        $titulo = $param['titulo'];
+        // comando SQL
+        $sql = "select * from evento where titulo like '%$titulo%'";
+        // execução do comando SQL e guarda seu STATUS de execução
+        mysqli_set_charset($this->conn, 'UTF-8');
+        $status_sql = mysqli_query($this->conn, $sql);
+        // caso a execução não tenha ocorrido algum erro
+        if (!mysqli_errno($this->conn)) {
+            if (mysqli_num_rows($status_sql) > 0) {
+                $arquivos = array();
+                while ($row = mysqli_fetch_assoc($status_sql)) {
+                    $arquivos[] = $row;
+                }
+                $response = $arquivos;
+            } else {
+                $response["erro"] = false;
+                $response["mensagem"] = ARQUIVO_NAO_ENCONTRADO;
             }
         } else {
             // caso ocorra algum erro na execução, será informado o através do error MySQL

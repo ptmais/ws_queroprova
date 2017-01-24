@@ -5,9 +5,9 @@
  *
  * @author Alexandre
  */
-require_once '../dao/dao_evento.php';
+require_once '../dao/daoEvento.php';
 
-class controlador_evento {
+class controladorEvento {
 
     protected $ci;
     private $dao;
@@ -15,7 +15,7 @@ class controlador_evento {
     public function __construct(Interop\Container\ContainerInterface $ci) {
         include_once dirname(__FILE__) . '/API_KEY.php';
         $this->ci = $ci;
-        $this->dao = new dao_evento();
+        $this->dao = new daoEvento();
     }
 
     public function inserir($request, $response) {
@@ -25,7 +25,7 @@ class controlador_evento {
             // pega os parametros do corpo da solicitação HTTP
             $param = json_decode($request->getBody());
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
                 return $response->withJson($this->dao->inserir($param));
@@ -40,17 +40,17 @@ class controlador_evento {
         }
     }
 
-    public function deletar_id($request, $response) {
+    public function deletarPorId($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = json_decode($request->getBody());
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->deletar_id($param));
+                return $response->withJson($this->dao->deletarPorId($param));
             } else {
                 return $response->withJson($check);
             }
@@ -61,17 +61,17 @@ class controlador_evento {
         }
     }
 
-    public function atualizar_id($request, $response) {
+    public function atualizarPorId($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = json_decode($request->getBody());
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->atualizar_id($param));
+                return $response->withJson($this->dao->atualizarPorId($param));
             } else {
                 return $response->withJson($check);
             }
@@ -82,17 +82,17 @@ class controlador_evento {
         }
     }
 
-    public function get_id($request, $response) {
+    public function getPorId($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = $request->getQueryParams();
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->get_id($param));
+                return $response->withJson($this->dao->getPorId($param));
             } else {
                 return $response->withJson($check);
             }
@@ -103,17 +103,17 @@ class controlador_evento {
         }
     }
 
-    public function get_idUsuario($request, $response) {
+    public function getPorIdUsuario($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = $request->getQueryParams();
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->get_idUsuario($param));
+                return $response->withJson($this->dao->getPorIdUsuario($param));
             } else {
                 return $response->withJson($check);
             }
@@ -124,17 +124,17 @@ class controlador_evento {
         }
     }
 
-    public function get_titulo($request, $response) {
+    public function getPorTitulo($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = $request->getQueryParams();
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->get_titulo($param));
+                return $response->withJson($this->dao->getPorTitulo($param));
             } else {
                 return $response->withJson($check);
             }
@@ -145,7 +145,7 @@ class controlador_evento {
         }
     }
 
-    public function check_parametros($parametros) {
+    public function checkParametros($parametros) {
         // recebe o array com os parametros de erro de campos vazios e salva-os em variaveis separadas
         $checkup = $this->getTextoErro($parametros);
         $erro = $checkup['erro'];

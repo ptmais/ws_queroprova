@@ -5,9 +5,9 @@
  *
  * @author Alexandre
  */
-require_once '../dao/dao_arquivo.php';
+require_once '../dao/daoUsuario.php';
 
-class controlador_arquivo {
+class controladorUsuario {
 
     protected $ci;
     private $dao;
@@ -15,83 +15,121 @@ class controlador_arquivo {
     public function __construct(Interop\Container\ContainerInterface $ci) {
         include_once dirname(__FILE__) . '/API_KEY.php';
         $this->ci = $ci;
-        $this->dao = new dao_arquivo();
+        $this->dao = new daoUsuario();
     }
 
-    public function inserir_bd($request, $response, $param) {
-        // resposta da inserção dos dados ao banco de dados
-        $respostaInserir = $this->dao->inserir($param);
-        // verifica se ocorreu algum erro
-        if (!$respostaInserir['erro']) {
-            // caso tenha ocorrido tudo OK, será salvo o ID desse ultimo dado inserido no banco de dados
-            // para ser usado como nome do arquivo ao salvar no servidor
-            $respostaGetUltimo = $this->dao->get_ultimo();
-            if (!$respostaGetUltimo['erro']) {
-                return $respostaGetUltimo['mensagem'];
-            }
-        }
-    }
-
-    public function inserir_arquivo($request, $response) {
+    public function inserir($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
-            // array que salva os parâmetros enviados
-            $param = array();
-            $parsedBody = $request->getParsedBody();
-            // formatação dos parâmetros e salvar em uma array
-            foreach ($parsedBody as $key => $value) {
-                $disciplina = str_replace("\"", "", str_replace(",", "", $value));
-                $param[] = $disciplina;
-            }
-            // pega os parâmetros e insere-os no banco
-            $respostaInserir = $this->dao->inserir($param);
-            // verifica se ocorreu algum erro na inserção
-            if (!$respostaInserir['erro']) {
-                // caso ocorra sem erro, irá buscar o ID do dado inserido
-                $respostaGetUltimo = $this->dao->get_ultimo();
-                // verifica se ocorreu algum erro na solicitação do ID
-                if (!$respostaGetUltimo['erro']) {
-                    // caso ocorra sem erro
-                    $id = $respostaGetUltimo['mensagem'];
-                    // pega os arquivos a serem enviados
-                    $arquivos = $request->getUploadedFiles();
-                    // guarda o arquivo com o nome 'name'
-                    $arquivo = $arquivos['file'];
-                    // pega a extensão do arquivo
-                    $ext = pathinfo($arquivo->getClientFilename(), PATHINFO_EXTENSION);
-                    $arquivo->moveTo($_SERVER['DOCUMENT_ROOT'] . '/provas/' .
-                            $param[1] . '/' . $id . '.' . $ext);
-                    $resposta["erro"] = false;
-                    $resposta["mensagem"] = ARQUIVO_INSERIDO_SUCESSO;
-                } else {
+            // pega os parametros do corpo da solicitação HTTP
+            $param = json_decode($request->getBody());
+            // faz o checkup se todos os parâmetros foram preenchidos
+            $check = $this->checkParametros($param);
+            // caso o retorno do check seja vazio, indica que não possui erro
+            if (empty($check)) {
+                // verifica se o email já existe
+                $check_email = $this->dao->getEmailCheck($param->email);
+                if ($check_email) {
                     $resposta["erro"] = true;
-                    $resposta["mensagem"] = $respostaGetUltimo['mensagem'];
+                    $resposta["mensagem"] = 'Email já cadastrado.';
+                    return $response->withJson($resposta);
+                } else {
+                    return $response->withJson($this->dao->inserir($param));
+                }
+            } else {
+                return $response->withJson($check);
+            }
+            return $response->withJson($param);
+        } else {
+            $resposta["erro"] = true;
+            $resposta["mensagem"] = 'Comando não autorizado.';
+            return $response->withJson($resposta);
+        }
+    }
+
+    public function deletarPorId($request, $response) {
+        // verfica se está autorizado
+        $aut = $request->getHeader('Authorization');
+        if ($aut[0] == AUTH) {
+            // pega os parametros do corpo da solicitação HTTP
+            $param = json_decode($request->getBody());
+            // faz o checkup se todos os parâmetros foram preenchidos
+            $check = $this->checkParametros($param);
+            // caso o retorno do check seja vazio, indica que não possui erro
+            if (empty($check)) {
+                return $response->withJson($this->dao->deletarPorId($param));
+            } else {
+                return $response->withJson($check);
+            }
+        } else {
+            $resposta["erro"] = true;
+            $resposta["mensagem"] = 'Comando não autorizado.';
+            return $response->withJson($resposta);
+        }
+    }
+
+    public function deletarPorEmail($request, $response) {
+        // verfica se está autorizado
+        $aut = $request->getHeader('Authorization');
+        if ($aut[0] == AUTH) {
+            // pega os parametros do corpo da solicitação HTTP
+            $param = json_decode($request->getBody());
+            // faz o checkup se todos os parâmetros foram preenchidos
+            $check = $this->checkParametros($param);
+            // caso o retorno do check seja vazio, indica que não possui erro
+            if (empty($check)) {
+                return $response->withJson($this->dao->deletarPorEmail($param));
+            } else {
+                return $response->withJson($check);
+            }
+        } else {
+            $resposta["erro"] = true;
+            $resposta["mensagem"] = 'Comando não autorizado.';
+            return $response->withJson($resposta);
+        }
+    }
+
+    public function atualizarPorId($request, $response) {
+        // verfica se está autorizado
+        $aut = $request->getHeader('Authorization');
+        if ($aut[0] == AUTH) {
+            // pega os parametros do corpo da solicitação HTTP
+            $param = json_decode($request->getBody());
+            // faz o checkup se todos os parâmetros foram preenchidos
+            $check = $this->checkParametros($param);
+            // caso o retorno do check seja vazio, indica que não possui erro
+            if (empty($check)) {
+                return $response->withJson($this->dao->atualizarPorId($param));
+            } else {
+                return $response->withJson($check);
+            }
+        } else {
+            $resposta["erro"] = true;
+            $resposta["mensagem"] = 'Comando não autorizado.';
+            return $response->withJson($resposta);
+        }
+    }
+
+    public function atualizarPorEmail($request, $response) {
+        // verfica se está autorizado
+        $aut = $request->getHeader('Authorization');
+        if ($aut[0] == AUTH) {
+            // pega os parametros do corpo da solicitação HTTP
+            $param = json_decode($request->getBody());
+            if (sizeof($param) == 6) {
+                // faz o checkup se todos os parâmetros foram preenchidos
+                $check = $this->checkParametros($param);
+                // caso o retorno do check seja vazio, indica que não possui erro
+                if (empty($check)) {
+                    return $response->withJson($this->dao->atualizarPorEmail($param));
+                } else {
+                    return $response->withJson($check);
                 }
             } else {
                 $resposta["erro"] = true;
-                $resposta["mensagem"] = $respostaInserir['mensagem'];
-            }
-        } else {
-            $resposta["erro"] = true;
-            $resposta["mensagem"] = 'Comando não autorizado.';
-        }
-        return $response->withJson($resposta);
-    }
-
-    public function deletar_id($request, $response) {
-        // verfica se está autorizado
-        $aut = $request->getHeader('Authorization');
-        if ($aut[0] == AUTH) {
-            // pega os parametros do corpo da solicitação HTTP
-            $param = json_decode($request->getBody());
-            // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
-            // caso o retorno do check seja vazio, indica que não possui erro
-            if (empty($check)) {
-                return $response->withJson($this->dao->deletar_id($param));
-            } else {
-                return $response->withJson($check);
+                $resposta["mensagem"] = 'Número de parâmetros inválidos';
+                return $response->withJson($resposta);
             }
         } else {
             $resposta["erro"] = true;
@@ -100,38 +138,17 @@ class controlador_arquivo {
         }
     }
 
-    public function atualizar_id($request, $response) {
-        // verfica se está autorizado
-        $aut = $request->getHeader('Authorization');
-        if ($aut[0] == AUTH) {
-            // pega os parametros do corpo da solicitação HTTP
-            $param = json_decode($request->getBody());
-            // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
-            // caso o retorno do check seja vazio, indica que não possui erro
-            if (empty($check)) {
-                return $response->withJson($this->dao->atualizar_id($param));
-            } else {
-                return $response->withJson($check);
-            }
-        } else {
-            $resposta["erro"] = true;
-            $resposta["mensagem"] = 'Comando não autorizado.';
-            return $response->withJson($resposta);
-        }
-    }
-
-    public function get_id($request, $response) {
+    public function getPorId($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = $request->getQueryParams();
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->get_id($param));
+                return $response->withJson($this->dao->getPorId($param));
             } else {
                 return $response->withJson($check);
             }
@@ -142,17 +159,17 @@ class controlador_arquivo {
         }
     }
 
-    public function get_idUsuario($request, $response) {
+    public function getPorEmail($request, $response) {
         // verfica se está autorizado
         $aut = $request->getHeader('Authorization');
         if ($aut[0] == AUTH) {
             // pega os parametros do corpo da solicitação HTTP
             $param = $request->getQueryParams();
             // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
+            $check = $this->checkParametros($param);
             // caso o retorno do check seja vazio, indica que não possui erro
             if (empty($check)) {
-                return $response->withJson($this->dao->get_idUsuario($param));
+                return $response->withJson($this->dao->getPorEmail($param));
             } else {
                 return $response->withJson($check);
             }
@@ -163,28 +180,7 @@ class controlador_arquivo {
         }
     }
 
-    public function get_titulo($request, $response) {
-        // verfica se está autorizado
-        $aut = $request->getHeader('Authorization');
-        if ($aut[0] == AUTH) {
-            // pega os parametros do corpo da solicitação HTTP
-            $param = $request->getQueryParams();
-            // faz o checkup se todos os parâmetros foram preenchidos
-            $check = $this->check_parametros($param);
-            // caso o retorno do check seja vazio, indica que não possui erro
-            if (empty($check)) {
-                return $response->withJson($this->dao->get_titulo($param));
-            } else {
-                return $response->withJson($check);
-            }
-        } else {
-            $resposta["erro"] = true;
-            $resposta["mensagem"] = 'Comando não autorizado.';
-            return $response->withJson($resposta);
-        }
-    }
-
-    public function check_parametros($parametros) {
+    public function checkParametros($parametros) {
         // recebe o array com os parametros de erro de campos vazios e salva-os em variaveis separadas
         $checkup = $this->getTextoErro($parametros);
         $erro = $checkup['erro'];
@@ -228,10 +224,6 @@ class controlador_arquivo {
             'campos_vazios' => $msg_formadata,
             'quantidade' => $qnt);
         return $array;
-    }
-
-    public function getParametrosFormat($parametros) {
-        
     }
 
 }
